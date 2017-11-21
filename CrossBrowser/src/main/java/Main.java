@@ -23,4 +23,41 @@ public class Main {
         driver.findElement(By.xpath("//content//span[@class=\"RveJvd snByac\"]")).click();
         SingletonDriver.endSession();
     }
+    private DesiredCapabilities setDesireCapabilities() {
+    DesiredCapabilities capability;
+
+    switch (browser) {
+        case FIREFOX:
+            capability = DesiredCapabilities.firefox();
+            break;
+        case CHROME:
+            capability = DesiredCapabilities.chrome();
+            capability.setCapability("chrome.switches", Arrays.asList("--ignore-certificate-errors"));
+            break;
+        case IE:
+            capability = DesiredCapabilities.internetExplorer();
+            capability.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS, true);
+            break;
+        default:
+            // ...
+            break;
+    }
+
+    if (capability != null) {
+        capability.setBrowserName(getBrowserName(browser));
+        capability.setPlatform(platform);
+    }
+
+    return capability;
+}
+
+protected RemoteWebDriver initDriver() {
+    DesiredCapabilities capabilities = setDesireCapabilities();
+    try {
+        return new RemoteWebDriver(new URL(Context.gridHub), capabilities);
+    } catch (MalformedURLException e) {
+        logger.error(e);
+        return null;
+    }
+}
 }
